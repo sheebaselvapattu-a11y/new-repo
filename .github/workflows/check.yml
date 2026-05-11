@@ -1,0 +1,41 @@
+# .github/workflows/html-validation.yml
+name: HTML & CSS Validation on PR
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  validate-html-css:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install HTMLHint and Stylelint
+        run: |
+          npm install -g htmlhint stylelint stylelint-config-standard
+
+      - name: Validate HTML Files
+        run: |
+          echo "Checking HTML syntax..."
+          htmlhint "**/*.html"
+
+      - name: Validate CSS Files
+        run: |
+          echo "Checking CSS syntax..."
+          stylelint "**/*.css"
+
+      - name: Check Missing Closing Tags
+        run: |
+          echo "Scanning for possible HTML tag issues..."
+          if grep -r "<div[^>]*$" . --include="*.html"; then
+            echo "Potential unclosed div tag found!"
+            exit 1
+          fi
+
+      - name: Success Message
+        run: echo "HTML and CSS validation passed successfully!"
